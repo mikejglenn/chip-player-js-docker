@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian/eol:buster
 LABEL maintainer "soltune <k@psycube.com>"
 ENV EMSCRIPTEN_VERSION 1.38.47
 ENV PORT_STATIC 5000
@@ -32,9 +32,9 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DAN
     && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends yarn \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 https://github.com/emscripten-core/emsdk.git /usr/local/src/emsdk \
-    && /usr/local/src/emsdk/emsdk install ${EMSCRIPTEN_VERSION} \
-    && /usr/local/src/emsdk/emsdk activate ${EMSCRIPTEN_VERSION}
+# RUN git clone --depth 1 https://github.com/emscripten-core/emsdk.git /usr/local/src/emsdk \
+#     && /usr/local/src/emsdk/emsdk install ${EMSCRIPTEN_VERSION} \
+#     && /usr/local/src/emsdk/emsdk activate ${EMSCRIPTEN_VERSION}
 
 WORKDIR /usr/local/src/chip-player-js
 RUN git clone --depth 1 https://github.com/soltune/chip-player-js.git /usr/local/src/chip-player-js \
@@ -42,7 +42,7 @@ RUN git clone --depth 1 https://github.com/soltune/chip-player-js.git /usr/local
         -e's/source ~/source \/usr\/local/' \
         -e's/homepage\": *\".\+\"/homepage\": \"\/\"/' package.json \
     && sed -i \
-        -e's/localhost/0.0.0.0/' public/index.js \
+        -e's/localhost/0.0.0.0/' public/index.html \
     && sed -i \
         -e's/segmentCount = 1/segmentCount = 0/' public/404.html \
     && sed -i \
@@ -50,22 +50,22 @@ RUN git clone --depth 1 https://github.com/soltune/chip-player-js.git /usr/local
         -e's/CATALOG_PREFIX *= *process.env.REACT_APP_CATALOG_PREFIX/CATALOG_PREFIX = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/static\/catalog\/\"/' \
         -e's/SOUNDFONT_URL_PATH *= *process\.env\.REACT_APP_SOUNDFONT_URL_PATH/SOUNDFONT_URL_PATH = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/soundfonts\/\"/' src/config/index.js 
 
-WORKDIR libxmp
-RUN autoconf \
-    && source /usr/local/src/emsdk/emsdk_env.sh \
-    && emconfigure ./configure \
-    && emmake make -f Makefile.lite
+# WORKDIR libxmp
+# RUN autoconf \
+#     && source /usr/local/src/emsdk/emsdk_env.sh \
+#     && emconfigure ./configure \
+#     && emmake make -f Makefile.lite
 
-WORKDIR libxmp-lite-stagedir
-RUN autoconf \
-    && source /usr/local/src/emsdk/emsdk_env.sh \
-    && emconfigure ./configure --enable-static --disable-shared \
-    && emmake make
+# WORKDIR libxmp-lite-stagedir
+# RUN autoconf \
+#     && source /usr/local/src/emsdk/emsdk_env.sh \
+#     && emconfigure ./configure --enable-static --disable-shared \
+#     && emmake make
 
-WORKDIR /usr/local/src/chip-player-js/fluidlite/build
-RUN source /usr/local/src/emsdk/emsdk_env.sh \
-    && emcmake cmake -DDISABLE_SF3=1 .. \
-    && emmake make fluidlite-static
+# WORKDIR /usr/local/src/chip-player-js/fluidlite/build
+# RUN source /usr/local/src/emsdk/emsdk_env.sh \
+#     && emcmake cmake -DDISABLE_SF3=1 .. \
+#     && emmake make fluidlite-static
 
 WORKDIR /usr/local/src/chip-player-js/
 ADD ./rhythm/_put_rhythm_files_here_ ./rhythm/*WAV ./rhythm/*bin ./public/rhythm/
@@ -75,5 +75,5 @@ ADD ./firebaseConfig.js ./src/config/
 RUN rm -f ./public/rhythm/_put_rhythm_files_here_ ./public/instruments/_put_rom_files_here_ ./public/soundfonts/_put_sf2_files_here_
 
 
-RUN yarn install && yarn run build
+RUN yarn install # && yarn run build
 
