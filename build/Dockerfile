@@ -26,18 +26,18 @@ RUN apt-get -qq update \
         xz-utils \
     && rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
-    && apt-get -qq update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends yarn \
-    && rm -rf /var/lib/apt/lists/*
+# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
+#     && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
+#     && apt-get -qq update \
+#     && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends yarn \
+#     && rm -rf /var/lib/apt/lists/*
 
 # RUN git clone --depth 1 https://github.com/emscripten-core/emsdk.git /usr/local/src/emsdk \
 #     && /usr/local/src/emsdk/emsdk install ${EMSCRIPTEN_VERSION} \
 #     && /usr/local/src/emsdk/emsdk activate ${EMSCRIPTEN_VERSION}
 
 WORKDIR /usr/local/src/chip-player-js
-RUN git clone --depth 1 https://github.com/soltune/chip-player-js.git /usr/local/src/chip-player-js \
+RUN git clone --depth 1 https://github.com/mmontag/chip-player-js.git /usr/local/src/chip-player-js \
     && sed -i \
         -e's/source ~/source \/usr\/local/' \
         -e's/homepage\": *\".\+\"/homepage\": \"\/\"/' package.json \
@@ -75,5 +75,5 @@ ADD ./firebaseConfig.js ./src/config/
 RUN rm -f ./public/rhythm/_put_rhythm_files_here_ ./public/instruments/_put_rom_files_here_ ./public/soundfonts/_put_sf2_files_here_
 
 
-RUN yarn install # && yarn run build
+RUN npm install # && yarn run build
 
