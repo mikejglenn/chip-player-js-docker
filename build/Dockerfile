@@ -44,11 +44,11 @@ RUN git clone --depth 1 https://github.com/soltune/chip-player-js.git /usr/local
     && sed -i \
         -e's/localhost/0.0.0.0/' public/index.html \
     && sed -i \
-        -e's/segmentCount = 1/segmentCount = 0/' public/404.html \
-    && sed -i \
-        -e's/API_BASE *= *process\.env\.REACT_APP_API_BASE/API_BASE = \"http:\/\/\"+window.location.hostname+\":'${PORT_API}'\/\"/' \
-        -e's/CATALOG_PREFIX *= *process.env.REACT_APP_CATALOG_PREFIX/CATALOG_PREFIX = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/static\/catalog\/\"/' \
-        -e's/SOUNDFONT_URL_PATH *= *process\.env\.REACT_APP_SOUNDFONT_URL_PATH/SOUNDFONT_URL_PATH = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/soundfonts\/\"/' src/config/index.js 
+        -e's/segmentCount = 1/segmentCount = 0/' public/404.html # \
+    # && sed -i \
+    #     -e's/API_BASE *= *process\.env\.REACT_APP_API_BASE/API_BASE = \"http:\/\/\"+window.location.hostname+\":'${PORT_API}'\/\"/' \
+    #     -e's/CATALOG_PREFIX *= *process.env.REACT_APP_CATALOG_PREFIX/CATALOG_PREFIX = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/static\/catalog\/\"/' \
+    #     -e's/SOUNDFONT_URL_PATH *= *process\.env\.REACT_APP_SOUNDFONT_URL_PATH/SOUNDFONT_URL_PATH = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/soundfonts\/\"/' src/config/index.js 
 
 # WORKDIR libxmp
 # RUN autoconf \
