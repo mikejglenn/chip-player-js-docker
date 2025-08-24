@@ -29,10 +29,10 @@ I suggest you to visit [GitHowTo](https://githowto.com/) if you're a newbie.
 After cloning this repository, create www directory and firebaseConfig.js (from firebaseConfig.example.js) like this.
 
 ```sh
-$ git clone https://github.com/soltune/chip-player-js-docker.git
-$ cd chip-player-js-docker
-$ mkdir www
-$ cp ./build/firebaseConfig.example.js ./build/firebaseConfig.js
+git clone https://github.com/soltune/chip-player-js-docker.git
+cd chip-player-js-docker
+mkdir www
+cp ./build/firebaseConfig.example.js ./build/firebaseConfig.js
 ```
 
 ### 2. Prepare Firebase account and Edit your settings **(Optional)**
@@ -114,7 +114,7 @@ $  <- return to prompt
 Finally, let's launch both nginx and nodejs servers;
 
 ```sh
-$ cd ../server/ && docker-compose up -d
+cd ../server/ && docker-compose up -d
 ```
 
 To browse your library, open [http://localhost:5000/](http://localhost:5000/) with your browser.
@@ -126,28 +126,28 @@ To browse your library, open [http://localhost:5000/](http://localhost:5000/) wi
 When you restart your host OS you'll need relaunch the servers on Docker.
 
 ```sh
-$ cd ./server/ && docker-compose up -d
+cd ./server/ && docker-compose up -d
 ```
 
 ### Shutdown Servers
 To stop your servers, just like the following;
 
 ```sh
-$ cd ./server/ && docker-compose down
+cd ./server/ && docker-compose down
 ```
 
 ### Update Catalog Only
 The catalog must be updated when any changes(add/remove/modify) made in ./catalog directory.
 
 ```sh
-$ cd ./build/ && docker-compose run chipplayerjs-build bash -c "yarn run build-catalog && cp ./public/catalog* ./public/directories.json /usr/share/www/" && cd ../server/ && docker-compose restart
+cd ./build/ && docker-compose run chipplayerjs-build bash -c docker-compose run chipplayerjs-build bash -c "npm run build-catalog && cp ./server/catalog* ./server/directories.json /usr/share/www/static/catalog/" && cd ../server/ && docker-compose restart
 ```
 
 ### Update Chip Player JS
 This operation updates Chip Player JS along with catalog to latest. 
 
 ```sh
-$ cd ./build/ && docker-compose up && cd ../server/ && docker-compose restart
+cd ./build/ && docker-compose up && cd ../server/ && docker-compose restart
 ```
 
 ## Sample Music
