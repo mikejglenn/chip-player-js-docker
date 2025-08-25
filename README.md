@@ -29,7 +29,7 @@ I suggest you to visit [GitHowTo](https://githowto.com/) if you're a newbie.
 After cloning this repository, create www directory and firebaseConfig.js (from firebaseConfig.example.js) like this.
 
 ```sh
-git clone https://github.com/soltune/chip-player-js-docker.git
+git clone https://github.com/mikejglenn/chip-player-js-docker.git
 cd chip-player-js-docker
 mkdir www
 cp ./build/firebaseConfig.example.js ./build/firebaseConfig.js
@@ -162,3 +162,17 @@ cd ./build/ && docker-compose up && cd ../server/ && docker-compose restart
 - w7n
     - [Himitsu Dolls (nsf)](https://famitracker.org/fcp2015/results-cover.html)
     - [Luka Luka Night Fever (nsf)](http://www.bilibili.com/video/av2279197/)
+ 
+## TL;DR
+```sh
+git clone https://github.com/mikejglenn/chip-player-js-docker.git
+cd chip-player-js-docker
+# Add song files and folders to catalog folder
+cp ./build/firebaseConfig.example.js ./build/firebaseConfig.js
+mkdir www
+cp -r ./src/* ./www/
+cd ./build/ && docker-compose up
+cd ../server/ && docker-compose up -d
+# To browse your library, open http://localhost:5000/ with your browser.
+```
+
