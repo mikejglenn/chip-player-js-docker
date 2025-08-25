@@ -140,7 +140,7 @@ cd ./server/ && docker-compose down
 The catalog must be updated when any changes(add/remove/modify) made in ./catalog directory.
 
 ```sh
-cd ./build/ && docker-compose run chipplayerjs-build bash -c docker-compose run chipplayerjs-build bash -c "npm run build-catalog && cp ./server/catalog* ./server/directories.json /usr/share/www/static/catalog/" && cd ../server/ && docker-compose restart
+cd ./build/ && docker-compose run chipplayerjs-build bash -c docker-compose run chipplayerjs-build bash -c "npm run build-catalog && cp ./server/catalog* ./server/directories.json /usr/share/www/" && cd ../server/ && docker-compose restart
 ```
 
 ### Update Chip Player JS

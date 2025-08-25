@@ -42,7 +42,7 @@ RUN git clone --depth 1 https://github.com/mikejglenn/chip-player-js.git /usr/lo
         -e's/source ~/source \/usr\/local/' \
         -e's/homepage\": *\".\+\"/homepage\": \"\/\"/' package.json \
     && sed -i \
-        -e's/localhost/0.0.0.0/' public/index.html \
+        -e's/localhost/0.0.0.0/' server/index.js \
     && sed -i \
         -e's/segmentCount = 1/segmentCount = 0/' public/404.html # \
     && sed -i \
@@ -74,6 +74,5 @@ ADD ./soundfonts/_put_sf2_files_here_ ./soundfonts/*sf2 ./soundfonts/*SF2 ./publ
 ADD ./firebaseConfig.js ./src/config/
 RUN rm -f ./public/rhythm/_put_rhythm_files_here_ ./public/instruments/_put_rom_files_here_ ./public/soundfonts/_put_sf2_files_here_
 
-
-RUN npm install # && yarn run build
-
+# RUN yarn install && yarn run build
+RUN npm install

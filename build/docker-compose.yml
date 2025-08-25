@@ -9,8 +9,16 @@ services:
       - out:/usr/share/www/
       - catalog:/usr/local/src/chip-player-js/catalog/
     working_dir: /usr/local/src/chip-player-js/
+    # command: >
+    #   bash -c "
+    #   git pull
+    #   && yarn run build
+    #   && rm -rf /usr/share/www/*
+    #   && cp -r ./build/* /usr/share/www/"
     command: >
-      bash -c "git pull"
+      bash -c "
+      npm run build-catalog
+      && cp ./server/catalog* ./server/directories.json /usr/share/www/"
 
 volumes:
   out:

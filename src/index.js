@@ -18,9 +18,9 @@ const TrieSearch = require('trie-search');
 const { performance } = require('perf_hooks');
 const { sampleSize } = require('lodash');
 
-const CATALOG_PATH = './static/catalog/catalog.json';
+const CATALOG_PATH = './catalog.json';
 const catalog = require(CATALOG_PATH);
-const DIRECTORIES_PATH = './static/catalog/directories.json';
+const DIRECTORIES_PATH = './directories.json';
 const directories = require(DIRECTORIES_PATH);
 
 const PUBLIC_CATALOG_URL = process.env.DEV ?
