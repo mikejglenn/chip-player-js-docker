@@ -37,7 +37,7 @@ RUN apt-get -qq update \
 #     && /usr/local/src/emsdk/emsdk activate ${EMSCRIPTEN_VERSION}
 
 WORKDIR /usr/local/src/chip-player-js
-RUN git clone --depth 1 https://github.com/mmontag/chip-player-js.git /usr/local/src/chip-player-js \
+RUN git clone --depth 1 https://github.com/mikejglenn/chip-player-js.git /usr/local/src/chip-player-js \
     && sed -i \
         -e's/source ~/source \/usr\/local/' \
         -e's/homepage\": *\".\+\"/homepage\": \"\/\"/' package.json \
