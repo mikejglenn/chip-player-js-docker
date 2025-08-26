@@ -14,9 +14,12 @@ const URL = require('url');
 const glob = require('glob');
 const path = require('path');
 const http = require('http');
+const crypto = require('crypto');
 const TrieSearch = require('trie-search');
 const { performance } = require('perf_hooks');
 const { sampleSize } = require('lodash');
+// Only used in DEV environment
+const { FORMATS } = process.env.DEV ? require('../src/config/index.js') : [];
 
 const CATALOG_PATH = './catalog.json';
 const catalog = require(CATALOG_PATH);
@@ -29,6 +32,8 @@ const PUBLIC_CATALOG_URL = process.env.DEV ?
 const LOCAL_CATALOG_ROOT = process.env.DEV ?
   '/Users/montag/Music/Chip Archive' :
   '/var/www/gifx.co/public_html/music';
+
+const sf2Regex = /SF2=(.+?)\.sf2/;
 
 console.log('Local catalog at %s', LOCAL_CATALOG_ROOT);
 console.log('Found %s entries in %s.', Object.entries(directories).length, DIRECTORIES_PATH);
@@ -64,6 +69,12 @@ const routes = {
     let items = trie.get(query, TrieSearch.UNION_REDUCER) || [];
     const total = items.length;
     if (limit) items = items.slice(0, limit);
+    // Add directory depth to items for sorting
+    items = items.map(item => { item.depth = item.file.split('/').length; return item; });
+    items.sort((a, b) => {
+      if (a.depth !== b.depth) return a.depth - b.depth;
+      return a.file.localeCompare(b.file);
+    });
     const time = (performance.now() - start).toFixed(1);
     console.log('Returned %s results in %s ms.', items.length, time);
     return {
@@ -102,38 +113,111 @@ const routes = {
   },
 
   'browse': async (params) => {
-    return directories[params.path];
+    /*
+      [
+        {
+          "path": "/Classical MIDI/Balakirev/Islamey – Fantaisie Orientale (G. Giulimondi).mid",
+          "size": 54602,
+          "type": "file",
+          "idx": 0
+        },
+        {
+          "path": "/Classical MIDI/Balakirev/Islamey – Fantaisie Orientale (W. Pepperdine).mid",
+          "size": 213866,
+          "type": "file",
+          "idx": 1
+        }
+      ]
+    */
+    if (process.env.DEV) {
+      const files = fs.readdirSync(path.join(LOCAL_CATALOG_ROOT, params.path), { withFileTypes: true });
+      return files
+        .filter(file => {
+          // Get lowercase file extension, without the dot
+          const ext = path.extname(file.name).toLowerCase().slice(1);
+          return (file.isDirectory() || (file.isFile() && FORMATS.includes(ext)));
+        })
+        .map((file, i) => {
+          return {
+            path: path.join(params.path, file.name),
+            size: 999,
+            mtime: 1665174068,
+            type: file.isDirectory() ? 'directory' : 'file',
+            idx: i,
+          }
+        });
+    } else {
+      return directories[params.path];
+    }
   },
 
   'metadata': async (params) => {
     let imageUrl = null;
     let soundfont = null;
     let infoTexts = [];
+    let md5 = null;
     if (params.path) {
-      const { dir, name } = path.parse(params.path);
+      const { dir, name, ext } = path.parse(params.path);
+      if (['.it', '.s3m', '.xm', '.mod'].includes(ext.toLowerCase())) {
+        // Calculate MD5 hash of file.
+        // Used to generate a link for Mod Sample Master.
+        const data = fs.readFileSync(path.join(LOCAL_CATALOG_ROOT, params.path));
+        const hash = crypto.createHash('md5');
+        hash.update(data);
+        md5 = hash.digest('hex');
+      }
 
-      // first, try matching same filename for info
+      // --- MIDI SoundFonts ---
+      if (['.mid', '.midi'].includes(ext.toLowerCase())) {
+        // 1. Check the file for SF2 meta text in first 1024 bytes (proprietary tag added by N64 MIDI script).
+        const data = await new Promise((resolve, reject) => {
+          const stream = fs.createReadStream(path.join(LOCAL_CATALOG_ROOT, params.path), {
+            encoding: 'UTF-8',
+            start: 0,
+            end: 256,
+          });
+          stream.on('data', data => resolve(data.toString()));
+          stream.on('error', () => resolve(null));
+        });
+        const match = data ? data.match(sf2Regex) : null;
+        if (match && match[1]) {
+          soundfont = `${match[1]}.sf2`;
+        } else {
+          // 2. Check for a filename match.
+          const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.sf2`, { nocase: true });
+          if (soundfonts.length > 0) {
+            soundfont = soundfonts[0];
+          } else {
+            // 3. Check for any .sf2 file in current folder.
+            const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.sf2`, { nocase: true });
+            if (soundfonts.length > 0) {
+              soundfont = soundfonts[0];
+            }
+          }
+        }
+
+        if (soundfont !== null) {
+          soundfont = `${PUBLIC_CATALOG_URL}/${path.join(dir, path.basename(soundfont))}`;
+        }
+      }
+
+      // --- Image and Info Text ---
+      // 1. Try matching same filename for info text.
       const infoFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{text,txt,doc}`, {nocase: true});
       if (infoFiles.length > 0) {
         infoTexts.push(fs.readFileSync(infoFiles[0], 'utf8'));
       }
 
-      // Don't search for SoundFonts in parent directories
-      const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.sf2`, {nocase: true});
-      if (soundfonts.length > 0) {
-        soundfont = soundfonts[0];
-      } else {
-        const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.sf2`, {nocase: true});
-        console.log(`glob ${LOCAL_CATALOG_ROOT}/${dir}/*.sf2:`, soundfonts);
-        if (soundfonts.length > 0) {
-          soundfont = soundfonts[0];
-        }
-      }
-      if (soundfont !== null) {
-        soundfont = `${PUBLIC_CATALOG_URL}${dir}/${path.basename(soundfont)}`;
+      // 2. Try matching same filename for image.
+      const imageFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{gif,png,jpg,jpeg}`, {nocase: true});
+      if (imageFiles.length > 0) {
+        const imageFile = encodeURI(path.basename(imageFiles[0]));
+        const imageDir = encodeURI(dir);
+        imageUrl = `${PUBLIC_CATALOG_URL}${imageDir}/${imageFile}`;
       }
 
       const segments = dir.split('/');
+      // 3. Walk up parent directories to find image or text.
       while (segments.length) {
         const dir = segments.join('/');
         if (imageUrl === null) {
@@ -158,6 +242,7 @@ const routes = {
       imageUrl: imageUrl,
       infoTexts: infoTexts,
       soundfont: soundfont,
+      md5: md5,
     };
   },
 };
@@ -188,9 +273,10 @@ http.createServer(async function (req, res) {
         res.end('Server error');
         console.log('Error processing request:', req.url, e);
       }
+    } else {
+      res.writeHead(404);
+      res.end('Route not found');
     }
-    res.writeHead(404);
-    res.end('Route not found');
   } catch (e) {
     res.writeHead(500);
     res.end(`Server error\n${e}\n`);
