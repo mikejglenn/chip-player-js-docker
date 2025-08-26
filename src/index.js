@@ -33,7 +33,7 @@ const PUBLIC_CATALOG_URL = // process.env.DEV ?
 const LOCAL_CATALOG_ROOT = // process.env.DEV ?
   // '/Users/montag/Music/Chip Archive' :
   // '/var/www/gifx.co/public_html/music';
-  '';
+  '/var/www/static/catalog';
 
 const sf2Regex = /SF2=(.+?)\.sf2/;
 
