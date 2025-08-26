@@ -26,12 +26,14 @@ const catalog = require(CATALOG_PATH);
 const DIRECTORIES_PATH = './directories.json';
 const directories = require(DIRECTORIES_PATH);
 
-const PUBLIC_CATALOG_URL = process.env.DEV ?
-  'http://localhost:8000/catalog' :
-  'https://gifx.co/music';
-const LOCAL_CATALOG_ROOT = process.env.DEV ?
-  '/Users/montag/Music/Chip Archive' :
-  '/var/www/gifx.co/public_html/music';
+const PUBLIC_CATALOG_URL = // process.env.DEV ?
+//   'http://localhost:8000/catalog' :
+//   'https://gifx.co/music';
+  '';
+const LOCAL_CATALOG_ROOT = // process.env.DEV ?
+  // '/Users/montag/Music/Chip Archive' :
+  // '/var/www/gifx.co/public_html/music';
+  '';
 
 const sf2Regex = /SF2=(.+?)\.sf2/;
 
