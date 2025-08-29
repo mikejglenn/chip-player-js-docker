@@ -29,11 +29,11 @@ const directories = require(DIRECTORIES_PATH);
 const PUBLIC_CATALOG_URL = // process.env.DEV ?
 //   'http://localhost:8000/catalog' :
 //   'https://gifx.co/music';
-  '';
+  'http://localhost:5000/static/catalog/';
 const LOCAL_CATALOG_ROOT = // process.env.DEV ?
   // '/Users/montag/Music/Chip Archive' :
   // '/var/www/gifx.co/public_html/music';
-  './static/catalog';
+  'http://localhost:5000/static/catalog/';
 
 const sf2Regex = /SF2=(.+?)\.sf2/;
 
