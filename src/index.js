@@ -16,10 +16,16 @@ const path = require('path');
 const http = require('http');
 const crypto = require('crypto');
 const TrieSearch = require('trie-search');
-const { performance } = require('perf_hooks');
-const { sampleSize } = require('lodash');
+const {
+  performance
+} = require('perf_hooks');
+const {
+  sampleSize
+} = require('lodash');
 // Only used in DEV environment
-const { FORMATS } = process.env.DEV ? require('../src/config/index.js') : [];
+const {
+  FORMATS
+} = process.env.DEV ? require('../src/config/index.js') : [];
 
 const CATALOG_PATH = './catalog.json';
 const catalog = require(CATALOG_PATH);
@@ -27,13 +33,13 @@ const DIRECTORIES_PATH = './directories.json';
 const directories = require(DIRECTORIES_PATH);
 
 const PUBLIC_CATALOG_URL = // process.env.DEV ?
-//   'http://localhost:8000/catalog' :
-//   'https://gifx.co/music';
-  'http://localhost:5000/static/catalog/';
+  //   'http://localhost:8000/catalog' :
+  //   'https://gifx.co/music';
+  '/';
 const LOCAL_CATALOG_ROOT = // process.env.DEV ?
   // '/Users/montag/Music/Chip Archive' :
   // '/var/www/gifx.co/public_html/music';
-  'http://localhost:5000/static/catalog/';
+  '/';
 
 const sf2Regex = /SF2=(.+?)\.sf2/;
 
@@ -58,7 +64,10 @@ const trie = new TrieSearch('file', {
   splitOnRegEx: /[^a-zA-Z0-9]|(?<=[a-z])(?=[A-Z])/,
 });
 const start = performance.now();
-const files = catalog.map((file, i) => ({id: i, file: file}));
+const files = catalog.map((file, i) => ({
+  id: i,
+  file: file
+}));
 trie.addAll(files);
 const time = (performance.now() - start).toFixed(1);
 console.log('Added %s items (%s tokens) to search trie in %s ms.', files.length, trie.size, time);
@@ -72,7 +81,10 @@ const routes = {
     const total = items.length;
     if (limit) items = items.slice(0, limit);
     // Add directory depth to items for sorting
-    items = items.map(item => { item.depth = item.file.split('/').length; return item; });
+    items = items.map(item => {
+      item.depth = item.file.split('/').length;
+      return item;
+    });
     items.sort((a, b) => {
       if (a.depth !== b.depth) return a.depth - b.depth;
       return a.file.localeCompare(b.file);
@@ -86,7 +98,9 @@ const routes = {
   },
 
   'total': async (params) => {
-    return { total: files.length };
+    return {
+      total: files.length
+    };
   },
 
   'random': async (params) => {
@@ -132,7 +146,9 @@ const routes = {
       ]
     */
     if (process.env.DEV) {
-      const files = fs.readdirSync(path.join(LOCAL_CATALOG_ROOT, params.path), { withFileTypes: true });
+      const files = fs.readdirSync(path.join(LOCAL_CATALOG_ROOT, params.path), {
+        withFileTypes: true
+      });
       return files
         .filter(file => {
           // Get lowercase file extension, without the dot
@@ -159,7 +175,11 @@ const routes = {
     let infoTexts = [];
     let md5 = null;
     if (params.path) {
-      const { dir, name, ext } = path.parse(params.path);
+      const {
+        dir,
+        name,
+        ext
+      } = path.parse(params.path);
       if (['.it', '.s3m', '.xm', '.mod'].includes(ext.toLowerCase())) {
         // Calculate MD5 hash of file.
         // Used to generate a link for Mod Sample Master.
@@ -186,12 +206,16 @@ const routes = {
           soundfont = `${match[1]}.sf2`;
         } else {
           // 2. Check for a filename match.
-          const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.sf2`, { nocase: true });
+          const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.sf2`, {
+            nocase: true
+          });
           if (soundfonts.length > 0) {
             soundfont = soundfonts[0];
           } else {
             // 3. Check for any .sf2 file in current folder.
-            const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.sf2`, { nocase: true });
+            const soundfonts = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.sf2`, {
+              nocase: true
+            });
             if (soundfonts.length > 0) {
               soundfont = soundfonts[0];
             }
@@ -205,13 +229,17 @@ const routes = {
 
       // --- Image and Info Text ---
       // 1. Try matching same filename for info text.
-      const infoFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{text,txt,doc}`, {nocase: true});
+      const infoFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{text,txt,doc}`, {
+        nocase: true
+      });
       if (infoFiles.length > 0) {
         infoTexts.push(fs.readFileSync(infoFiles[0], 'utf8'));
       }
 
       // 2. Try matching same filename for image.
-      const imageFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{gif,png,jpg,jpeg}`, {nocase: true});
+      const imageFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/${name}.{gif,png,jpg,jpeg}`, {
+        nocase: true
+      });
       if (imageFiles.length > 0) {
         const imageFile = encodeURI(path.basename(imageFiles[0]));
         const imageDir = encodeURI(dir);
@@ -223,7 +251,9 @@ const routes = {
       while (segments.length) {
         const dir = segments.join('/');
         if (imageUrl === null) {
-          const imageFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.{gif,png,jpg,jpeg}`, {nocase: true});
+          const imageFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.{gif,png,jpg,jpeg}`, {
+            nocase: true
+          });
           if (imageFiles.length > 0) {
             const imageFile = encodeURI(path.basename(imageFiles[0]));
             const imageDir = encodeURI(dir);
@@ -231,7 +261,9 @@ const routes = {
           }
         }
         if (infoTexts.length === 0) {
-          const infoFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.{text,txt,doc}`, {nocase: true});
+          const infoFiles = glob.sync(`${LOCAL_CATALOG_ROOT}/${dir}/*.{text,txt,doc}`, {
+            nocase: true
+          });
           infoTexts.push(...infoFiles.map(infoFile => fs.readFileSync(infoFile, 'utf8')));
         }
         if (imageUrl !== null && infoTexts.length > 0) {
@@ -249,7 +281,7 @@ const routes = {
   },
 };
 
-http.createServer(async function (req, res) {
+http.createServer(async function(req, res) {
   try {
     const url = URL.parse(req.url, true);
     const params = url.query || {};
@@ -258,7 +290,9 @@ http.createServer(async function (req, res) {
     if (route) {
       try {
         const json = await route(params);
-        const headers = {...HEADERS};
+        const headers = {
+          ...HEADERS
+        };
         if (!['random', 'shuffle'].includes(lastPathComponent)) {
           headers['Cache-Control'] = 'public, max-age=3600';
         }
