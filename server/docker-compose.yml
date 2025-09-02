@@ -9,8 +9,8 @@ services:
       - "5000:80"
       - "5001:5001"
     volumes:
-      - www:/var/www/
-      - catalog:/var/www/static/catalog/
+      - www:/var/www/:ro
+      - catalog:/var/www/static/catalog/:ro
     stdin_open: true
     tty: true
     command: [nginx, '-g', 'daemon off;']
@@ -23,7 +23,7 @@ services:
     expose:
       - "8080"
     volumes:
-      - www:/usr/share/www/
+      - www:/usr/share/www/:ro
     stdin_open: true
     tty: true
     working_dir: /usr/share/www/

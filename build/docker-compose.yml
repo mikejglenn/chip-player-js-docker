@@ -7,7 +7,7 @@ services:
     image: soltune/chipplayerjs-build
     volumes:
       - out:/usr/share/www/
-      - catalog:/usr/local/src/chip-player-js/catalog/
+      - catalog:/usr/local/src/chip-player-js/catalog/:ro
     working_dir: /usr/local/src/chip-player-js/
     # command: >
     #   bash -c "
