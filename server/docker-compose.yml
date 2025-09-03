@@ -9,7 +9,7 @@ services:
       - "5000:80"
       - "5001:5001"
     volumes:
-      - www:/var/www/:ro
+      - www:/var/www/
       - catalog:/var/www/static/catalog/:ro
     stdin_open: true
     tty: true
