@@ -7,23 +7,23 @@ ENV PORT_API 5001
 RUN apt-get -qq update \
     && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends \
         apt-transport-https \
-        autoconf \
-        build-essential \
+        # autoconf \
+        # build-essential \
         ca-certificates \
-        cmake \
-        curl \
+        # cmake \
+        # curl \
         git \
-        gnupg \
-        lbzip2 \
-        libstdc++6 \
-        libxml2 \
+        # gnupg \
+        # lbzip2 \
+        # libstdc++6 \
+        # libxml2 \
         nodejs \
         npm \
-        pkg-config \
-        python \
-        python3 \
-        tar \
-        xz-utils \
+        # pkg-config \
+        # python \
+        # python3 \
+        # tar \
+        # xz-utils \
     && rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
@@ -37,14 +37,14 @@ RUN apt-get -qq update \
 #     && /usr/local/src/emsdk/emsdk activate ${EMSCRIPTEN_VERSION}
 
 WORKDIR /usr/local/src/chip-player-js
-RUN git clone --depth 1 https://github.com/mikejglenn/chip-player-js.git /usr/local/src/chip-player-js \
+RUN git clone --depth 1 -b build-catalog-min-req --single-branch https://github.com/mikejglenn/chip-player-js.git /usr/local/src/chip-player-js \
     && sed -i \
         -e's/source ~/source \/usr\/local/' \
         -e's/homepage\": *\".\+\"/homepage\": \"\/\"/' package.json \
     && sed -i \
         -e's/localhost/0.0.0.0/' server/index.js \
-    && sed -i \
-        -e's/segmentCount = 1/segmentCount = 0/' public/404.html # \
+    # && sed -i \
+    #     -e's/segmentCount = 1/segmentCount = 0/' public/404.html # \
     && sed -i \
         -e's/API_BASE *= *process\.env\.REACT_APP_API_BASE/API_BASE = \"http:\/\/\"+window.location.hostname+\":'${PORT_API}'\/\"/' \
         -e's/CATALOG_PREFIX *= *process.env.REACT_APP_CATALOG_PREFIX/CATALOG_PREFIX = \"http:\/\/\"+window.location.hostname+\":'${PORT_STATIC}'\/static\/catalog\/\"/' \
@@ -68,11 +68,11 @@ RUN git clone --depth 1 https://github.com/mikejglenn/chip-player-js.git /usr/lo
 #     && emmake make fluidlite-static
 
 WORKDIR /usr/local/src/chip-player-js/
-ADD ./rhythm/_put_rhythm_files_here_ ./rhythm/*WAV ./rhythm/*bin ./public/rhythm/
-ADD ./roms/_put_rom_files_here_ ./roms/*rom ./public/instruments/
-ADD ./soundfonts/_put_sf2_files_here_ ./soundfonts/*sf2 ./soundfonts/*SF2 ./public/soundfonts/
+# ADD ./rhythm/_put_rhythm_files_here_ ./rhythm/*WAV ./rhythm/*bin ./public/rhythm/
+# ADD ./roms/_put_rom_files_here_ ./roms/*rom ./public/instruments/
+# ADD ./soundfonts/_put_sf2_files_here_ ./soundfonts/*sf2 ./soundfonts/*SF2 ./public/soundfonts/
 ADD ./firebaseConfig.js ./src/config/
-RUN rm -f ./public/rhythm/_put_rhythm_files_here_ ./public/instruments/_put_rom_files_here_ ./public/soundfonts/_put_sf2_files_here_
+# RUN rm -f ./public/rhythm/_put_rhythm_files_here_ ./public/instruments/_put_rom_files_here_ ./public/soundfonts/_put_sf2_files_here_
 
 # RUN yarn install && yarn run build
 RUN npm install
